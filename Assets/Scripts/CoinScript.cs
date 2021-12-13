@@ -25,14 +25,9 @@ public class CoinScript : MonoBehaviour
     
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Coin Collision"+ collision.gameObject.tag);
-        /*if (collision.gameObject.tag == "GroundTag")
-        {
-            CoinDown();
-        }*/
         if (collision.gameObject.tag == "BallTag")
         {
-            Destroy(collision.gameObject);
+            //Destroy(collision.gameObject);
             CoinDown();
         }
     }
@@ -42,8 +37,8 @@ public class CoinScript : MonoBehaviour
         //Coin to zero
         gameObject.GetComponent<Rigidbody>().AddForce(Vector3.zero);
         gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        gameObject.GetComponent<Rigidbody>().rotation = Quaternion.Euler(0, 0, 0);
-        gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+        gameObject.GetComponent<Rigidbody>().rotation = Quaternion.identity;
+        gameObject.transform.rotation = Quaternion.identity;
         Vector3 startVector = new Vector3(0f, 0.5f, 0f);
         gameObject.transform.position = startVector;
 

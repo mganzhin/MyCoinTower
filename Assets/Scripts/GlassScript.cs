@@ -8,6 +8,9 @@ public class GlassScript : MonoBehaviour, IPointerClickHandler
     Vector3 startVector;
     public GameObject BallPrefab;
 
+    public delegate void glassPressed(GlassScript glassScript, Vector3 glassVector);
+    public event glassPressed GlassPressedEvent;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,18 +28,17 @@ public class GlassScript : MonoBehaviour, IPointerClickHandler
 
         //startVector = eventData.pointerCurrentRaycast.gameObject.transform.position;
         startVector = eventData.pointerCurrentRaycast.worldPosition;
-        if (startVector != null)
-        {
-            Debug.Log("Click x: " + startVector.x + "y: " + startVector.y + "z: " + startVector.z);
-        }
-        GameObject ball = GameObject.FindWithTag("BallTag");
+
+        GlassPressedEvent?.Invoke(this, startVector);
+
+        /*GameObject ball = GameObject.FindWithTag("BallTag");
         if (ball == null)
         {
             ball = Instantiate(BallPrefab,
-                new Vector3(0, 22, -26),
-                Quaternion.Euler(0, 0, 0));
+                MainCameraScript.cameraPosition,
+                Quaternion.identity);
             Rigidbody ballRigid = ball.GetComponent<Rigidbody>();
-            ballRigid.AddForce(3 * (startVector - ball.transform.position), ForceMode.Impulse);
-        }
+            ballRigid.AddForce(5 * (startVector - ball.transform.position), ForceMode.Impulse);
+        }*/
     }
 }

@@ -9,6 +9,7 @@ TagManager:
   - BallTag
   - CoinTag
   - WallTag
+  - TemplateFlagTag
   layers:
   - Default
   - TransparentFX
