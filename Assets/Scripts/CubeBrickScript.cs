@@ -8,6 +8,7 @@ public class CubeBrickScript : MonoBehaviour
     [SerializeField] private Material materialInPlace;
     private Renderer brickRenderer;
     private bool isBrickInPlace;
+    private bool isBrickInHands;
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +29,16 @@ public class CubeBrickScript : MonoBehaviour
     public bool IsBrickInPlace()
     {
         return isBrickInPlace;
+    }
+
+    public bool IsBrickInHands()
+    {
+        return isBrickInHands;
+    }
+
+    public void SetBrickInHands(bool inHands)
+    {
+        isBrickInHands = inHands;
     }
 
     private void OnTriggerStay(Collider other)

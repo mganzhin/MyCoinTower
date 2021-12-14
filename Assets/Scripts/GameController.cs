@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class GameController : MonoBehaviour
 {
 
+    private readonly float builderSiteFloor = 2.5f;
     public Text ScoreText;
     
     [SerializeField] private readonly List<GameObject> towerList = new List<GameObject>();
@@ -18,6 +19,9 @@ public class GameController : MonoBehaviour
     [SerializeField] private readonly List<GameObject> ballList = new List<GameObject>();
     [SerializeField] private GameObject BallPrefab;
 
+    [SerializeField] private readonly List<GameObject> builderList = new List<GameObject>();
+    [SerializeField] private GameObject BuilderPrefab;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,9 +32,21 @@ public class GameController : MonoBehaviour
 
     void RestartScene()
     {
+        ScoreText.text = "Find a Coin under tower!";
         MakeTower();
         time = 0;
         MakeBalls();
+        MakeBuilders();
+    }
+
+    public List<GameObject> GetBrickList()
+    {
+        return towerList;
+    }
+
+    public List<GameObject> GetFlagList()
+    {
+        return templateList;
     }
 
     void OnGlassPressed(GlassScript glassScript, Vector3 glassVector)
@@ -47,7 +63,6 @@ public class GameController : MonoBehaviour
         }
         if (ball != null)
         {
-            Debug.Log("ball not null");
             Vector3 ballPosition = MainCameraScript.cameraPosition;
             ballPosition.y -= 1;
             ball.transform.position = ballPosition;
@@ -55,15 +70,33 @@ public class GameController : MonoBehaviour
             Rigidbody ballRigid = ball.GetComponent<Rigidbody>();
             ballRigid.AddForce(5 * (glassVector - ball.transform.position), ForceMode.Impulse);
         }
-        else
+    }
+
+    void ClearObjectList(List<GameObject> objectList)
+    {
+        for (int i = objectList.Count - 1; i >= 0; i--)
         {
-            Debug.Log("ball null");
+            Destroy(objectList[i]);
+            objectList.RemoveAt(i);
+        }
+    }
+
+    void MakeBuilders()
+    {
+        ClearObjectList(builderList);
+        float angle;
+        for (int i = 0; i < 3; i++)
+        {
+            angle = Random.Range(0f, 14f);
+            builderList.Add(Instantiate(BuilderPrefab,
+                new Vector3(21 * Mathf.Cos(angle), 3f, 21 * Mathf.Sin(angle)),
+                Quaternion.identity));
         }
     }
 
     void MakeBalls()
     {
-        ballList.Clear();
+        ClearObjectList(ballList);
         for (int i = 0; i < 3; i++)
         {
             ballList.Add(Instantiate(BallPrefab,
@@ -76,9 +109,8 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ScoreText.text = "Find a Coin under tower!";
         time += Time.deltaTime;
-        if (time > 1)
+        /*if (time > 1)
         {
             time = 0;
             //Find broken tower wall
@@ -122,17 +154,13 @@ public class GameController : MonoBehaviour
                     nearestBrokenBrick.transform.position = lowestBrokenFlag.transform.position;
                 }
             }
-        }
+        }*/
     }
 
     void MakeTower()
     {
-        for (int i = towerList.Count - 1; i >= 0; i--)
-        {
-            Destroy(towerList[i]);
-        }
-        templateList.Clear();
-        towerList.Clear();
+        ClearObjectList(towerList);
+        ClearObjectList(templateList);
         //Start tower and flags for build
         for (int y = 0; y < 3; y++)
         {
@@ -143,10 +171,10 @@ public class GameController : MonoBehaviour
                     if ((x != 0) || (z != 0))
                     {
                         templateList.Add(Instantiate(TemplateFlag,
-                            new Vector3(x * 2f, 2f + y * 2f, z * 2f),
+                            new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
                             Quaternion.Euler(0, 0, 0)));
                         towerList.Add(Instantiate(TowerPrefab,
-                            new Vector3(x * 2f, 2f + y * 2f, z * 2f),
+                            new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
                             Quaternion.Euler(0, 0, 0)));
                     }
                     else
@@ -154,10 +182,10 @@ public class GameController : MonoBehaviour
                         if (y == 0)
                         {
                             templateList.Add(Instantiate(TemplateFlag,
-                                new Vector3(x * 2f, 3f + y * 2f, z * 2f),
+                                new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
                                 Quaternion.Euler(0, 0, 0)));
                             towerList.Add(Instantiate(TowerPrefab,
-                                new Vector3(x * 2f, 3f + y * 2f, z * 2f),
+                                new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
                                 Quaternion.Euler(0, 0, 0)));
                         }
                     }
@@ -174,7 +202,7 @@ public class GameController : MonoBehaviour
                     if ((x != 0) || (z != 0))
                     {
                         templateList.Add(Instantiate(TemplateFlag,
-                            new Vector3(x * 2f, 2f + y * 2f, z * 2f),
+                            new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
                             Quaternion.Euler(0, 0, 0)));
                     }
                 }
@@ -182,12 +210,16 @@ public class GameController : MonoBehaviour
         }
         //Place other bricks
         float angle;
-        for (int i = towerList.Count; i < 50; i++)
+        for (int i = towerList.Count; i < 28; i++)
         {
             angle = Random.Range(0f, 14f);
             towerList.Add(Instantiate(TowerPrefab,
                             new Vector3(17*Mathf.Cos(angle), Random.Range(3, 15), 17 * Mathf.Sin(angle)),
                             Quaternion.Euler(0, 0, 0)));
+        }
+        for (int i = 0; i< towerList.Count; i++)
+        {
+            towerList[i].GetComponent<CubeBrickScript>().SetBrickInHands(false);
         }
     }
 

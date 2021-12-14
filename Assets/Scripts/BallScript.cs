@@ -22,7 +22,6 @@ public class BallScript : MonoBehaviour
             if ((gameObject.transform.position.y < -5) || (lifeTime > 6))
             {
                 BackToBox();
-                //Destroy(gameObject);
             }
         }
     }

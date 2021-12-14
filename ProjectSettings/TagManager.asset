@@ -4,12 +4,11 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - TowerTag
-  - GroundTag
-  - BallTag
-  - CoinTag
-  - WallTag
   - TemplateFlagTag
+  - TowerTag
+  - BallTag
+  - TowerBuilder
+  - BuildingSite
   layers:
   - Default
   - TransparentFX
