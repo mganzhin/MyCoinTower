@@ -14,6 +14,7 @@ public class GameController : MonoBehaviour
 {
 
     private readonly float builderSiteFloor = 2.5f;
+    public static int countBrokenBricks;
     public Text ScoreText;
     private WeaponType weapon;
     
@@ -32,6 +33,7 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        countBrokenBricks = 0;
         weapon = WeaponType.Single;
         FindObjectOfType<CoinScript>().CoinDownEvent += OnCoinDown;
         FindObjectOfType<GlassScript>().GlassPressedEvent += OnGlassPressed;

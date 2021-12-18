@@ -45,6 +45,8 @@ public class BuilderScript : MonoBehaviour
             Business = businessStay;
         }
 
+        if (ShitButtonBehaviour.isPressed) Business = businessStay;
+
         switch (Business)
         {
             case businessStay:

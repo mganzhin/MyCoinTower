@@ -64,6 +64,7 @@ public class CubeBrickScript : MonoBehaviour
             {
                 brickRenderer.material = materialBroken;
                 isBrickInPlace = false;
+                GameController.countBrokenBricks++;
             }
         }
     }
