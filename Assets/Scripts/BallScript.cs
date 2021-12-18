@@ -11,6 +11,7 @@ public class BallScript : MonoBehaviour
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
+        rigidBody.mass = 1.5f;
     }
 
     // Update is called once per frame
@@ -19,7 +20,7 @@ public class BallScript : MonoBehaviour
         if (gameObject.activeSelf)
         {
             lifeTime += Time.deltaTime;
-            if ((gameObject.transform.position.y < -5) || (lifeTime > 6))
+            if ((gameObject.transform.position.y < -5) || (lifeTime > 4))
             {
                 BackToBox();
             }

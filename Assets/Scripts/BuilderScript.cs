@@ -93,7 +93,7 @@ public class BuilderScript : MonoBehaviour
                     if ((transform.position - targetBrick.transform.position).magnitude < 4)
                     {
                         transform.position = Vector3.MoveTowards(transform.position, builderSite.transform.position, 2 * Time.deltaTime);
-                        targetBrick.transform.position = Vector3.MoveTowards(targetBrick.transform.position, builderSite.transform.position, 2 * Time.deltaTime);
+                        targetBrick.transform.position = Vector3.MoveTowards(targetBrick.transform.position, transform.position, 2 * Time.deltaTime);
                     }
                     else
                     {

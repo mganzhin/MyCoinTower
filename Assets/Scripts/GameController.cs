@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum WeaponType
+{
+    Single,
+    Triple
+}
+
 
 public class GameController : MonoBehaviour
 {
 
     private readonly float builderSiteFloor = 2.5f;
     public Text ScoreText;
+    private WeaponType weapon;
     
     [SerializeField] private readonly List<GameObject> towerList = new List<GameObject>();
     [SerializeField] private GameObject TowerPrefab;
@@ -25,6 +32,7 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        weapon = WeaponType.Single;
         FindObjectOfType<CoinScript>().CoinDownEvent += OnCoinDown;
         FindObjectOfType<GlassScript>().GlassPressedEvent += OnGlassPressed;
         RestartScene();
@@ -53,23 +61,49 @@ public class GameController : MonoBehaviour
     {
         int i = 0;
         GameObject ball = null;
-        while ((i < ballList.Count) && (ball == null))
+        Vector3 ballPosition = MainCameraScript.cameraPosition;
+        ballPosition.y -= 1;
+        switch (weapon)
         {
-            if (!ballList[i].activeSelf)
-            {
-                ball = ballList[i];
-            }
-            i++;
+            case WeaponType.Single:
+                while ((i < ballList.Count) && (ball == null))
+                {
+                    if (!ballList[i].activeSelf)
+                    {
+                        ball = ballList[i];
+                    }
+                    i++;
+                }
+                if (ball != null)
+                {
+                    ball.transform.position = ballPosition;
+                    ball.SetActive(true);
+                    Rigidbody ballRigid = ball.GetComponent<Rigidbody>();
+                    ballRigid.AddForce(5 * ballRigid.mass * (glassVector - ball.transform.position), ForceMode.Impulse);
+                }
+                break;
+            case WeaponType.Triple:
+                bool isNotAll = false;
+                foreach (var item in ballList)
+                {
+                    if (item.activeSelf)
+                        isNotAll = true;
+                }
+                if (!isNotAll)
+                {
+                    Vector3 tempPos;
+                    for (int ind = 0; ind < ballList.Count; ind++)
+                    {
+                        tempPos = new Vector3(ballPosition.x + Mathf.Sin(time * 0.05f * ind), ballPosition.y + ind % 2, ballPosition.z + Mathf.Cos(time * 0.05f * ind));
+                        ballList[ind].transform.position = tempPos;
+                        ballList[ind].SetActive(true);
+                        Rigidbody ballRigid = ballList[ind].GetComponent<Rigidbody>();
+                        ballRigid.AddForce(5 * ballRigid.mass * (glassVector - ballPosition), ForceMode.Impulse);
+                    }
+                }
+                break;
         }
-        if (ball != null)
-        {
-            Vector3 ballPosition = MainCameraScript.cameraPosition;
-            ballPosition.y -= 1;
-            ball.transform.position = ballPosition;
-            ball.SetActive(true);
-            Rigidbody ballRigid = ball.GetComponent<Rigidbody>();
-            ballRigid.AddForce(5 * (glassVector - ball.transform.position), ForceMode.Impulse);
-        }
+        
     }
 
     void ClearObjectList(List<GameObject> objectList)
@@ -109,6 +143,14 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            weapon = WeaponType.Triple;
+        }
+        else if (Input.GetKeyDown(KeyCode.E))
+        {
+            weapon = WeaponType.Single;
+        }
         time += Time.deltaTime;
         /*if (time > 1)
         {
