@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class RotorScript : MonoBehaviour
 {
-    private float rotorAngle;
+    [SerializeField] private float rotorAngle;
 
     // Start is called before the first frame update
     void Start()
     {
-        rotorAngle = 200f;
+        //rotorAngle = 200f;
     }
 
     // Update is called once per frame
