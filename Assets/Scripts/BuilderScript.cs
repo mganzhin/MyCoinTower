@@ -45,7 +45,7 @@ public class BuilderScript : MonoBehaviour
             Business = businessStay;
         }
 
-        if (ShitButtonBehaviour.isPressed) Business = businessStay;
+        if (ShitButtonBehaviour.isPressed) Business = businessWalking;
 
         switch (Business)
         {
@@ -196,5 +196,7 @@ public class BuilderScript : MonoBehaviour
             Business = businessBringBrokenBrick;
         }
     }
+
+    
 }
 

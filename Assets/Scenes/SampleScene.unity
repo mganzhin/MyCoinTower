@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -260,7 +260,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 333548320}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
@@ -2052,7 +2052,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 1297864410}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
@@ -2243,7 +2243,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 1475938582}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
@@ -2573,7 +2573,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 1844516880}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
@@ -2874,6 +2874,7 @@ MonoBehaviour:
     type: 3}
   BuilderPrefab: {fileID: 5737738271241936482, guid: 05d487f12708e91469a3eaffe15296e3,
     type: 3}
+  Gun: {fileID: 572151268009072254, guid: 05d5713d05918344abbffdbf75e1f877, type: 3}
 --- !u!4 &1980424921
 Transform:
   m_ObjectHideFlags: 0
