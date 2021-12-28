@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
 
     private readonly float builderSiteFloor = 2.5f;
     public static int countBrokenBricks;
+    private bool isFullBuild = false;
     public Text ScoreText;
     private WeaponType weapon;
     
@@ -29,6 +30,7 @@ public class GameController : MonoBehaviour
 
     [SerializeField] private readonly List<GameObject> builderList = new List<GameObject>();
     [SerializeField] private GameObject BuilderPrefab;
+    [SerializeField] private GameObject Gun;
 
     // Start is called before the first frame update
     void Start()
@@ -154,6 +156,11 @@ public class GameController : MonoBehaviour
             weapon = WeaponType.Single;
         }
         time += Time.deltaTime;
+        if (IsAllInBuild() && !isFullBuild)
+        {
+            isFullBuild = true;
+            MakeTowerGun();
+        }
         /*if (time > 1)
         {
             time = 0;
@@ -270,5 +277,30 @@ public class GameController : MonoBehaviour
     void OnCoinDown(CoinScript coinScript)
     {
         RestartScene();
+    }
+
+    private bool IsAllInBuild()
+    {
+        int x = 0;
+        for (int i = 0; i < towerList.Count; i++)
+        {
+            if (templateList[i].GetComponent<TemplateFlagScript>().IsInPlace())
+            {
+                x++;
+            }
+        }
+        return x == towerList.Count;
+    }
+
+    private void MakeTowerGun()
+    {
+        Vector3 vect = new Vector3(10, 0.9f, 0);
+        GameObject gObj;
+        gObj = Instantiate(Gun);
+        gObj.transform.position = vect;
+        vect *= -1;
+        vect.y = 0.9f;
+        gObj = Instantiate(Gun);
+        gObj.transform.position = vect;
     }
 }

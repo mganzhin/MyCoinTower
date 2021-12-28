@@ -16,7 +16,7 @@ public class MainCameraScript : MonoBehaviour
 
     void Update()
     {
-        time += 0.1f * Time.deltaTime;
+        time += 0.1f * Time.deltaTime;  
         transform.position = new Vector3(radius * Mathf.Sin(time), 22 + Mathf.Sin(time * 5 * Random.Range(1,2)), radius * Mathf.Cos(time));
         cameraPosition = transform.position;
         transform.LookAt(Vector3.zero);
