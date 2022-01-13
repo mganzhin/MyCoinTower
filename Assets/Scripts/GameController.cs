@@ -18,7 +18,7 @@ public class GameController : MonoBehaviour
     private bool isFullBuild = false;
     public Text ScoreText;
     private WeaponType weapon;
-    
+
     [SerializeField] private readonly List<GameObject> towerList = new List<GameObject>();
     [SerializeField] private GameObject TowerPrefab;
     private float time;
@@ -28,9 +28,14 @@ public class GameController : MonoBehaviour
     [SerializeField] private readonly List<GameObject> ballList = new List<GameObject>();
     [SerializeField] private GameObject BallPrefab;
 
+    private readonly List<int> bulletReadyList = new List<int>();
+
     [SerializeField] private readonly List<GameObject> builderList = new List<GameObject>();
     [SerializeField] private GameObject BuilderPrefab;
     [SerializeField] private GameObject Gun;
+
+    [SerializeField] private GameObject Copter;
+    [SerializeField] private GameObject[] BulletWing;
 
     // Start is called before the first frame update
     void Start()
@@ -63,27 +68,37 @@ public class GameController : MonoBehaviour
 
     void OnGlassPressed(GlassScript glassScript, Vector3 glassVector)
     {
-        int i = 0;
         GameObject ball = null;
         Vector3 ballPosition = MainCameraScript.cameraPosition;
-        ballPosition.y -= 1;
         switch (weapon)
         {
             case WeaponType.Single:
-                while ((i < ballList.Count) && (ball == null))
+                //int i = 0;
+                //while ((i < ballList.Count) && (ball == null))
+                //{
+                //if (ballList[i].GetComponent<Rigidbody>().isKinematic) 
+                if (bulletReadyList[0] >= 0)
                 {
-                    if (!ballList[i].activeSelf)
-                    {
-                        ball = ballList[i];
-                    }
-                    i++;
+                    ball = ballList[bulletReadyList[0]];
+                    bulletReadyList[0] = -1;
                 }
+                //i++;
+                //}
                 if (ball != null)
                 {
-                    ball.transform.position = ballPosition;
-                    ball.SetActive(true);
+                    ball.transform.position = ballPosition + (glassVector - ballPosition) / 2;
                     Rigidbody ballRigid = ball.GetComponent<Rigidbody>();
-                    ballRigid.AddForce(5 * ballRigid.mass * (glassVector - ball.transform.position), ForceMode.Impulse);
+                    ballRigid.isKinematic = false;
+                    ballRigid.AddForce(5 * ballRigid.mass * (glassVector - MainCameraScript.cameraPosition), ForceMode.Impulse);
+                    for (int i = 0; i < bulletReadyList.Count - 1; i++)
+                    {
+                        if ((bulletReadyList[i] == -1) && (bulletReadyList[i + 1] >= 0))
+                        {
+                            bulletReadyList[i] = bulletReadyList[i + 1];
+                            SetBulletToPlace(ballList[bulletReadyList[i + 1]], i);
+                            bulletReadyList[i + 1] = -1;
+                        }
+                    }
                 }
                 break;
             case WeaponType.Triple:
@@ -137,12 +152,44 @@ public class GameController : MonoBehaviour
         ClearObjectList(ballList);
         for (int i = 0; i < 3; i++)
         {
+            Vector3 bulletPlace = BulletWing[i].transform.position;
             ballList.Add(Instantiate(BallPrefab,
-                new Vector3(0, 58, 0),
+                bulletPlace,
                 Quaternion.identity));
-            ballList[i].SetActive(false);
+            ballList[i].transform.SetParent(Copter.transform);
+            ballList[i].GetComponent<BallScript>().SetType();
+            ballList[i].GetComponent<BallScript>().BallDownEvent += OnBallDownEvent;
+            ballList[i].GetComponent<Rigidbody>().isKinematic = true;
+            ballList[i].GetComponent<BallScript>().BulletNumber = i;
+            bulletReadyList.Add(i);
         }
     }
+
+    public void OnBallDownEvent(BallScript ballScript)
+    {
+        ballScript.SetType();
+        SetBulletToPlace(ballScript.gameObject, 2);
+        int i = 0;
+        bool isFound = false;
+        while ((i < bulletReadyList.Count) && (!isFound))
+        {
+            if (bulletReadyList[i] == -1)
+            {
+                bulletReadyList[i] = ballScript.BulletNumber;
+                SetBulletToPlace(ballList[bulletReadyList[i]], i);
+                isFound = true;
+            }
+            i++;
+        }
+    }
+
+    private void SetBulletToPlace(GameObject ball, int placeNumber)
+    {
+        Vector3 bulletPlace = BulletWing[placeNumber].transform.position;
+        ball.transform.position = bulletPlace;
+    }
+
+    
 
     // Update is called once per frame
     void Update()
@@ -161,51 +208,7 @@ public class GameController : MonoBehaviour
             isFullBuild = true;
             MakeTowerGun();
         }
-        /*if (time > 1)
-        {
-            time = 0;
-            //Find broken tower wall
-            GameObject lowestBrokenFlag = null;
-            float y = 100;
-            for (int i = 0; i < templateList.Count; i++)
-            {
-                if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace())
-                {
-                    if (templateList[i].gameObject.transform.position.y < y)
-                    {
-                        lowestBrokenFlag = templateList[i];
-                        y = templateList[i].gameObject.transform.position.y;
-                    }
-                }
-            }
-            //if tower has broken wall
-            if (lowestBrokenFlag != null)
-            {
-                //Find nearest broken brick
-                GameObject nearestBrokenBrick = null;
-                float distance = 100;
-                for (int i = 0; i < towerList.Count; i++)
-                {
-                    if (!towerList[i].GetComponent<CubeBrickScript>().IsBrickInPlace())
-                    {
-                        if ((towerList[i].gameObject.transform.position - lowestBrokenFlag.transform.position).magnitude < distance)
-                        {
-                            nearestBrokenBrick = towerList[i];
-                            distance = (towerList[i].gameObject.transform.position - lowestBrokenFlag.transform.position).magnitude;
-                        }
-                    }
-                }
-                if (nearestBrokenBrick != null)
-                {
-                    //Place brick to flag;
-                    nearestBrokenBrick.GetComponent<Rigidbody>().AddForce(Vector3.zero);
-                    nearestBrokenBrick.GetComponent<Rigidbody>().velocity = Vector3.zero;
-                    nearestBrokenBrick.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-                    nearestBrokenBrick.transform.rotation = Quaternion.identity;
-                    nearestBrokenBrick.transform.position = lowestBrokenFlag.transform.position;
-                }
-            }
-        }*/
+
     }
 
     void MakeTower()
@@ -303,4 +306,54 @@ public class GameController : MonoBehaviour
         gObj = Instantiate(Gun);
         gObj.transform.position = vect;
     }
+
+    /* from update
+if (time > 1)
+{
+    time = 0;
+    //Find broken tower wall
+    GameObject lowestBrokenFlag = null;
+    float y = 100;
+    for (int i = 0; i < templateList.Count; i++)
+    {
+        if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace())
+        {
+            if (templateList[i].gameObject.transform.position.y < y)
+            {
+                lowestBrokenFlag = templateList[i];
+                y = templateList[i].gameObject.transform.position.y;
+            }
+        }
+    }
+    //if tower has broken wall
+    if (lowestBrokenFlag != null)
+    {
+        //Find nearest broken brick
+        GameObject nearestBrokenBrick = null;
+        float distance = 100;
+        for (int i = 0; i < towerList.Count; i++)
+        {
+            if (!towerList[i].GetComponent<CubeBrickScript>().IsBrickInPlace())
+            {
+                if ((towerList[i].gameObject.transform.position - lowestBrokenFlag.transform.position).magnitude < distance)
+                {
+                    nearestBrokenBrick = towerList[i];
+                    distance = (towerList[i].gameObject.transform.position - lowestBrokenFlag.transform.position).magnitude;
+                }
+            }
+        }
+        if (nearestBrokenBrick != null)
+        {
+            //Place brick to flag;
+            nearestBrokenBrick.GetComponent<Rigidbody>().AddForce(Vector3.zero);
+            nearestBrokenBrick.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            nearestBrokenBrick.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+            nearestBrokenBrick.transform.rotation = Quaternion.identity;
+            nearestBrokenBrick.transform.position = lowestBrokenFlag.transform.position;
+        }
+    }
+}*/
+
 }
+
+
