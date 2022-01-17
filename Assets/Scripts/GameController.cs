@@ -157,7 +157,7 @@ public class GameController : MonoBehaviour
                 bulletPlace,
                 Quaternion.identity));
             ballList[i].transform.SetParent(Copter.transform);
-            ballList[i].GetComponent<BallScript>().SetType();
+            ballList[i].GetComponent<BallScript>().SetBulletType();
             ballList[i].GetComponent<BallScript>().BallDownEvent += OnBallDownEvent;
             ballList[i].GetComponent<Rigidbody>().isKinematic = true;
             ballList[i].GetComponent<BallScript>().BulletNumber = i;
@@ -167,7 +167,7 @@ public class GameController : MonoBehaviour
 
     public void OnBallDownEvent(BallScript ballScript)
     {
-        ballScript.SetType();
+        ballScript.SetBulletType();
         SetBulletToPlace(ballScript.gameObject, 2);
         int i = 0;
         bool isFound = false;

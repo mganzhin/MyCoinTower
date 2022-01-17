@@ -42,10 +42,15 @@ public class BallScript : MonoBehaviour
         }
     }
 
-    public void SetType()
+    public void SetBulletType()
     {
         BulletType = Random.Range(0, maxType + 1);
         GetComponent<Renderer>().material = materials[BulletType];
+    }
+
+    public int GetBulletType()
+    {
+        return BulletType;
     }
 
     private void BackToBox()

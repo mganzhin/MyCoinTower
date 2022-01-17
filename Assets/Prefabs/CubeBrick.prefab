@@ -125,5 +125,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5aa021ce6bae434c8dfb7618c79c2d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  materialBroken: {fileID: 2100000, guid: 39266ed13d7f10245b654b615b1d484e, type: 2}
-  materialInPlace: {fileID: 2100000, guid: 849ef550defa4c74ca0c1231f9da45b1, type: 2}
+  materialDamaged:
+  - {fileID: 2100000, guid: 28355beacab4776429090058a5056ed7, type: 2}
+  - {fileID: 2100000, guid: dd8068c39446e6f44895b86800f1a39b, type: 2}
+  - {fileID: 2100000, guid: 33d71a204a3a5b44a8b13d671def8e39, type: 2}
+  materialBroken: {fileID: 2100000, guid: 49213bca6273c6644ba953f7498ab133, type: 2}
+  materialInPlace:
+  - {fileID: 2100000, guid: 11abeaed9f195f54ba079648143c3283, type: 2}
+  - {fileID: 2100000, guid: c825edc38c2a1de41908f51185ac123e, type: 2}
+  - {fileID: 2100000, guid: 1d65b8bf11af6924bbad12de1804d499, type: 2}
