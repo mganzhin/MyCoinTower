@@ -9,6 +9,9 @@ TagManager:
   - BallTag
   - TowerBuilder
   - BuildingSite
+  - CoinTag
+  - GroundTag
+  - BulletTag
   layers:
   - Default
   - TransparentFX
