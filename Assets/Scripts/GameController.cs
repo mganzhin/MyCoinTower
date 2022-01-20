@@ -19,7 +19,7 @@ public class GameController : MonoBehaviour
     public Text ScoreText;
     private WeaponType weapon;
 
-    [SerializeField] private readonly List<GameObject> towerList = new List<GameObject>();
+    [SerializeField] private readonly List<CubeBrickScript> towerList = new List<CubeBrickScript>();
     [SerializeField] private GameObject TowerPrefab;
     private float time;
     [SerializeField] private readonly List<GameObject> templateList = new List<GameObject>();
@@ -56,7 +56,7 @@ public class GameController : MonoBehaviour
         MakeBuilders();
     }
 
-    public List<GameObject> GetBrickList()
+    public List<CubeBrickScript> GetBrickList()
     {
         return towerList;
     }
@@ -73,17 +73,11 @@ public class GameController : MonoBehaviour
         switch (weapon)
         {
             case WeaponType.Single:
-                //int i = 0;
-                //while ((i < ballList.Count) && (ball == null))
-                //{
-                //if (ballList[i].GetComponent<Rigidbody>().isKinematic) 
                 if (bulletReadyList[0] >= 0)
                 {
                     ball = ballList[bulletReadyList[0]];
                     bulletReadyList[0] = -1;
                 }
-                //i++;
-                //}
                 if (ball != null)
                 {
                     ball.transform.position = ballPosition + (glassVector - ballPosition) / 2;
@@ -125,6 +119,15 @@ public class GameController : MonoBehaviour
         
     }
 
+    void ClearTowerList(List<CubeBrickScript> towerList)
+    {
+        for (int i = towerList.Count - 1; i >= 0; i--)
+        {
+            Destroy(towerList[i].gameObject);
+            towerList.RemoveAt(i);
+        }
+    }
+
     void ClearObjectList(List<GameObject> objectList)
     {
         for (int i = objectList.Count - 1; i >= 0; i--)
@@ -150,6 +153,7 @@ public class GameController : MonoBehaviour
     void MakeBalls()
     {
         ClearObjectList(ballList);
+        bulletReadyList.Clear();
         for (int i = 0; i < 3; i++)
         {
             Vector3 bulletPlace = BulletWing[i].transform.position;
@@ -185,8 +189,11 @@ public class GameController : MonoBehaviour
 
     private void SetBulletToPlace(GameObject ball, int placeNumber)
     {
-        Vector3 bulletPlace = BulletWing[placeNumber].transform.position;
-        ball.transform.position = bulletPlace;
+        if ((placeNumber >= 0) && (placeNumber < BulletWing.Length))
+        {
+            Vector3 bulletPlace = BulletWing[placeNumber].transform.position;
+            ball.transform.position = bulletPlace;
+        }
     }
 
     
@@ -213,7 +220,7 @@ public class GameController : MonoBehaviour
 
     void MakeTower()
     {
-        ClearObjectList(towerList);
+        ClearTowerList(towerList);
         ClearObjectList(templateList);
         //Start tower and flags for build
         for (int y = 0; y < 3; y++)
@@ -227,9 +234,10 @@ public class GameController : MonoBehaviour
                         templateList.Add(Instantiate(TemplateFlag,
                             new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
                             Quaternion.Euler(0, 0, 0)));
-                        towerList.Add(Instantiate(TowerPrefab,
+                        GameObject towerBrick = Instantiate(TowerPrefab,
                             new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
-                            Quaternion.Euler(0, 0, 0)));
+                            Quaternion.Euler(0, 0, 0));
+                        towerList.Add(towerBrick.GetComponent<CubeBrickScript>());
                     }
                     else
                     {
@@ -238,9 +246,11 @@ public class GameController : MonoBehaviour
                             templateList.Add(Instantiate(TemplateFlag,
                                 new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
                                 Quaternion.Euler(0, 0, 0)));
-                            towerList.Add(Instantiate(TowerPrefab,
+                            GameObject towerBrick = Instantiate(TowerPrefab,
                                 new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
-                                Quaternion.Euler(0, 0, 0)));
+                                Quaternion.Euler(0, 0, 0));
+
+                            towerList.Add(towerBrick.GetComponent<CubeBrickScript>());
                         }
                     }
                 }
@@ -267,19 +277,45 @@ public class GameController : MonoBehaviour
         for (int i = towerList.Count; i < 28; i++)
         {
             angle = Random.Range(0f, 14f);
-            towerList.Add(Instantiate(TowerPrefab,
-                            new Vector3(17*Mathf.Cos(angle), Random.Range(3, 15), 17 * Mathf.Sin(angle)),
-                            Quaternion.Euler(0, 0, 0)));
+            GameObject towerBrick = Instantiate(TowerPrefab,
+                            new Vector3(17 * Mathf.Cos(angle), Random.Range(3, 15), 17 * Mathf.Sin(angle)),
+                            Quaternion.Euler(0, 0, 0));
+            towerList.Add(towerBrick.GetComponent<CubeBrickScript>());
         }
         for (int i = 0; i< towerList.Count; i++)
         {
-            towerList[i].GetComponent<CubeBrickScript>().SetBrickInHands(false);
+            towerList[i].SetBrickInHands(false);
+            towerList[i].BrickDownEvent += OnBrickDown;
         }
     }
 
     void OnCoinDown(CoinScript coinScript)
     {
         RestartScene();
+    }
+
+    void OnBrickDown(CubeBrickScript cubeBrickScript)
+    {
+        //Debug.Log("OnBrickDown");
+        int i = 0;
+        int found = -1;
+        while ((i < towerList.Count)&&(found == -1))
+        {
+            if (cubeBrickScript == towerList[i])
+            {
+                Destroy(cubeBrickScript.gameObject);
+                if (cubeBrickScript.IsBrickInHands())
+                {
+                    Debug.Log("BrickInHands");
+                }
+                found = i;
+            }
+            i++;
+        }
+        if (found >= 0)
+        {
+            towerList.RemoveAt(found);
+        }
     }
 
     private bool IsAllInBuild()

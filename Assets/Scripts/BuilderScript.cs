@@ -58,15 +58,15 @@ public class BuilderScript : MonoBehaviour
                 float distance = 100;
                 if (gameController != null)
                 {
-                    List<GameObject> towerList = gameController.GetBrickList();
+                    List<CubeBrickScript> towerList = gameController.GetBrickList();
                     for (int i = 0; i < towerList.Count; i++)
                     {
-                        CubeBrickScript cubeScript = towerList[i].GetComponent<CubeBrickScript>();
-                        if ((!cubeScript.IsBrickInPlace()) && (!cubeScript.IsBrickInHands()))
+                        //CubeBrickScript cubeScript = towerList[i].GetComponent<CubeBrickScript>();
+                        if ((!towerList[i].IsBrickInPlace()) && (!towerList[i].IsBrickInHands()))
                         {
                             if ((towerList[i].gameObject.transform.position - transform.position).magnitude < distance)
                             {
-                                targetBrick = towerList[i];
+                                targetBrick = towerList[i].gameObject;
                                 targetBrick.GetComponent<Renderer>().material = targetMaterial;
                                 distance = (towerList[i].gameObject.transform.position - transform.position).magnitude;
                             }
