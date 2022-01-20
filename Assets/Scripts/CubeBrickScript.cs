@@ -19,6 +19,10 @@ public class CubeBrickScript : MonoBehaviour
     private int hitPoints;
     private int brickType;
     private float deadTime;
+    [SerializeField] private FormulaKeeperSO formulaKeeper;
+
+    public delegate void brickDown(CubeBrickScript cubeBrickScript);
+    public event brickDown BrickDownEvent;
 
     // Start is called before the first frame update
     void Start()
@@ -79,12 +83,20 @@ public class CubeBrickScript : MonoBehaviour
 
         if (hitPoints == 0)
         {
-            deadTime += Time.deltaTime;
-            if (deadTime > 5)
+            if (isBrickInPlace)
             {
-                //Destroy?
+                BrickDownEvent?.Invoke(this);
+            }
+            else
+            {
+                deadTime += Time.deltaTime;
+                if (deadTime > 10)
+                {
+                    BrickDownEvent?.Invoke(this);
+                }
             }
         }
+
     }
 
     public void SetDeltaHitPoints(int deltaHitPoints)
@@ -140,6 +152,8 @@ public class CubeBrickScript : MonoBehaviour
     {
         if (collision.gameObject.tag == "BallTag")
         {
+            SetDeltaHitPoints(-formulaKeeper.CalcDamage(collision.gameObject.GetComponent<BallScript>().GetBulletType(), brickType));
+            /*
             if (collision.gameObject.GetComponent<BallScript>().GetBulletType() == brickType)
             {
                 SetDeltaHitPoints(-5);
@@ -147,7 +161,7 @@ public class CubeBrickScript : MonoBehaviour
             else
             {
                 SetDeltaHitPoints(-3);
-            }
+            }*/
         }
     }
 

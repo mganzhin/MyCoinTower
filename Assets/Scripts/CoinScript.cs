@@ -39,7 +39,7 @@ public class CoinScript : MonoBehaviour
         gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
         gameObject.GetComponent<Rigidbody>().rotation = Quaternion.identity;
         gameObject.transform.rotation = Quaternion.identity;
-        Vector3 startVector = new Vector3(0f, 0.5f, 0f);
+        Vector3 startVector = new Vector3(0f, 1.7f, 0f);
         gameObject.transform.position = startVector;
 
         //Tower to zero
