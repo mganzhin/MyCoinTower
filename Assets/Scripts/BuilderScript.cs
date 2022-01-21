@@ -67,7 +67,7 @@ public class BuilderScript : MonoBehaviour
                             if ((towerList[i].gameObject.transform.position - transform.position).magnitude < distance)
                             {
                                 targetBrick = towerList[i].gameObject;
-                                targetBrick.GetComponent<Renderer>().material = targetMaterial;
+                                //targetBrick.GetComponent<Renderer>().material = targetMaterial;
                                 distance = (towerList[i].gameObject.transform.position - transform.position).magnitude;
                             }
                         }

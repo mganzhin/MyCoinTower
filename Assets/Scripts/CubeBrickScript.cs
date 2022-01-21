@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CubeBrickScript : MonoBehaviour
 {
-    private const int maxHitPoints = 100;
+    private const float maxHitPoints = 100f;
     private const int fireType = 0; //red
     private const int ecoType = 1; //green
     private const int waterType = 2; //blue
@@ -16,9 +16,8 @@ public class CubeBrickScript : MonoBehaviour
     private Renderer brickRenderer;
     private bool isBrickInPlace;
     private bool isBrickInHands;
-    private int hitPoints;
+    private float hitPoints;
     private int brickType;
-    private float deadTime;
     [SerializeField] private FormulaKeeperSO formulaKeeper;
 
     public delegate void brickDown(CubeBrickScript cubeBrickScript);
@@ -31,7 +30,6 @@ public class CubeBrickScript : MonoBehaviour
         hitPoints = maxHitPoints;
         brickType = Random.Range(0, maxTypes);
         SetMaterial(CheckMaterial());
-        deadTime = 0;
     }
 
     private void SetMaterial(Material material)
@@ -47,15 +45,13 @@ public class CubeBrickScript : MonoBehaviour
 
     private Material CheckMaterial()
     {
-        if (isBrickInPlace)
-        {
-            if (hitPoints > 80)
+            if (hitPoints > 70)
             {
                 return materialInPlace[brickType];
             }
             else
             {
-                if (hitPoints == 0)
+                if (hitPoints < 30)
                 {
                     return materialBroken;
                 }
@@ -64,11 +60,6 @@ public class CubeBrickScript : MonoBehaviour
                     return materialDamaged[brickType];
                 }
             }
-        }
-        else
-        {
-            return materialBroken;
-        }
     }
 
     // Update is called once per frame
@@ -81,25 +72,21 @@ public class CubeBrickScript : MonoBehaviour
             transform.position = new Vector3(17 * Mathf.Cos(angle), Random.Range(3, 15), 17 * Mathf.Sin(angle));
         }
 
-        if (hitPoints == 0)
+        if (hitPoints <= 0)
         {
-            if (isBrickInPlace)
-            {
                 BrickDownEvent?.Invoke(this);
-            }
-            else
-            {
-                deadTime += Time.deltaTime;
-                if (deadTime > 10)
-                {
-                    BrickDownEvent?.Invoke(this);
-                }
-            }
         }
+
+        if ((!isBrickInPlace) && (!isBrickInHands))
+        {
+            hitPoints -= formulaKeeper.GetFrameDamage() * Time.deltaTime;
+        }
+
+        SetMaterial(CheckMaterial());
 
     }
 
-    public void SetDeltaHitPoints(int deltaHitPoints)
+    public void SetDeltaHitPoints(float deltaHitPoints)
     {
         if (hitPoints > 0)
         {
@@ -107,7 +94,7 @@ public class CubeBrickScript : MonoBehaviour
         }
     }
 
-    public int GetHitPoints()
+    public float GetHitPoints()
     {
         return hitPoints;
     }
@@ -132,19 +119,16 @@ public class CubeBrickScript : MonoBehaviour
         if (other.gameObject.tag == "TemplateFlagTag")
         {
             isBrickInPlace = true;
-            SetMaterial(CheckMaterial());
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("TriggerExit!");
+        //Debug.Log("TriggerExit!");
         if (other.gameObject.tag == "TemplateFlagTag")
         {
             isBrickInPlace = false;
-            SetDeltaHitPoints(-maxHitPoints);
             GameController.countBrokenBricks++;
-            SetMaterial(CheckMaterial());
         }
     }
 
@@ -153,15 +137,6 @@ public class CubeBrickScript : MonoBehaviour
         if (collision.gameObject.tag == "BallTag")
         {
             SetDeltaHitPoints(-formulaKeeper.CalcDamage(collision.gameObject.GetComponent<BallScript>().GetBulletType(), brickType));
-            /*
-            if (collision.gameObject.GetComponent<BallScript>().GetBulletType() == brickType)
-            {
-                SetDeltaHitPoints(-5);
-            }
-            else
-            {
-                SetDeltaHitPoints(-3);
-            }*/
         }
     }
 

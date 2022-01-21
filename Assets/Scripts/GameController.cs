@@ -45,6 +45,7 @@ public class GameController : MonoBehaviour
         FindObjectOfType<CoinScript>().CoinDownEvent += OnCoinDown;
         FindObjectOfType<GlassScript>().GlassPressedEvent += OnGlassPressed;
         RestartScene();
+        Debug.Log("Deltatime: " + Time.deltaTime);
     }
 
     void RestartScene()
