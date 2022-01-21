@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f85ec4e3c60a0434996a5e1d1560c25e, type: 3}
   m_Name: FormulaKeeper
   m_EditorClassIdentifier: 
-  fullDamage: 50
+  fullDamage: 8
   lessDamage: 6
+  frameDamage: 3

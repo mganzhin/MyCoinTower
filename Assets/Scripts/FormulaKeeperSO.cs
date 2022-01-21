@@ -9,6 +9,8 @@ public class FormulaKeeperSO : ScriptableObject
 
     [SerializeField] private int lessDamage;
 
+    [SerializeField] private int frameDamage;
+
     public int CalcDamage(int weaponType, int targetType)
     {
         if (weaponType == targetType)
@@ -19,5 +21,10 @@ public class FormulaKeeperSO : ScriptableObject
         {
             return lessDamage;
         }
+    }
+
+    public int GetFrameDamage()
+    {
+        return frameDamage;
     }
 }
