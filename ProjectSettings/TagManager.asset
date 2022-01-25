@@ -12,6 +12,7 @@ TagManager:
   - CoinTag
   - GroundTag
   - BulletTag
+  - BuilderBuildings
   layers:
   - Default
   - TransparentFX

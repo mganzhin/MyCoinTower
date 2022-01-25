@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BuilderScript : MonoBehaviour
 {
     [SerializeField] private Material targetMaterial;
+    
     private static GameObject builderSite;
     private static GameController gameController;
 
@@ -13,7 +15,8 @@ public class BuilderScript : MonoBehaviour
     private const int businessBringBrokenBrick = 2;
     private const int businessWalking = 3;
     private int Business { get; set; }
-    private GameObject targetBrick;
+    private GameObject targetBrick, targetBuilderHouse;
+    private NavMeshAgent agent;
     
 
     // Start is called before the first frame update
@@ -28,6 +31,8 @@ public class BuilderScript : MonoBehaviour
         {
             builderSite = GameObject.FindGameObjectWithTag("BuildingSite");
         }
+        agent = GetComponent<NavMeshAgent>();
+        targetBuilderHouse = GameObject.FindGameObjectWithTag("BuilderBuildings");
     }
 
     // Update is called once per frame
@@ -47,41 +52,65 @@ public class BuilderScript : MonoBehaviour
 
         if (ShitButtonBehaviour.isPressed) Business = businessWalking;
 
+        // agent.SetDestination(builderSite.transform.position);
+
         switch (Business)
         {
             case businessStay:
-                if (targetBrick != null)
-                {
-                    targetBrick.GetComponent<CubeBrickScript>().SetBrickInHands(false);
-                    targetBrick = null;
-                }
-                float distance = 100;
+                // если не все блоки на сцене - идти до дома, иначе стоим
                 if (gameController != null)
                 {
                     List<CubeBrickScript> towerList = gameController.GetBrickList();
+                    List<GameObject> templateList = gameController.GetFlagList();
                     for (int i = 0; i < towerList.Count; i++)
                     {
-                        //CubeBrickScript cubeScript = towerList[i].GetComponent<CubeBrickScript>();
-                        if ((!towerList[i].IsBrickInPlace()) && (!towerList[i].IsBrickInHands()))
+                        if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace()) // есть ли отсутствующие блоки на сцене
                         {
-                            if ((towerList[i].gameObject.transform.position - transform.position).magnitude < distance)
-                            {
-                                targetBrick = towerList[i].gameObject;
-                                //targetBrick.GetComponent<Renderer>().material = targetMaterial;
-                                distance = (towerList[i].gameObject.transform.position - transform.position).magnitude;
-                            }
+                            Business = businessGoToBrokenBrick;
+                        } 
+                        else
+                        {
+                            agent.SetDestination(transform.position); // стоим
                         }
                     }
-                    if (targetBrick != null)
-                    {
-                        Business = businessGoToBrokenBrick;
-                        targetBrick.GetComponent<CubeBrickScript>().SetBrickInHands(true);
-                    }
-                    else
-                    {
-                        Business = businessWalking;
-                    }
                 }
+                
+                //if (targetBrick != null)
+                //{
+                //    targetBrick.GetComponent<CubeBrickScript>().SetBrickInHands(false);
+                //    targetBrick = null;
+                //}
+                //float distance = 100;
+                //if (gameController != null)
+                //{
+                //    List<CubeBrickScript> towerList = gameController.GetBrickList();
+                //    for (int i = 0; i < towerList.Count; i++)
+                //    {
+                //        //CubeBrickScript cubeScript = towerList[i].GetComponent<CubeBrickScript>();
+                //        if ((!towerList[i].IsBrickInPlace()) && (!towerList[i].IsBrickInHands()))
+                //        {
+                //            /*
+                //             Было : Поиск куба с минимальным расстоянием от строителя
+                //             Должно стать: Ходьба до здания и забор куба 
+                //             */
+                //            if ((towerList[i].gameObject.transform.position - transform.position).magnitude < distance)
+                //            {
+                //                targetBrick = towerList[i].gameObject;
+                //                //targetBrick.GetComponent<Renderer>().material = targetMaterial;
+                //                distance = (towerList[i].gameObject.transform.position - transform.position).magnitude;
+                //            }
+                //        }
+                //    }
+                //    if (targetBrick != null)
+                //    {
+                //        Business = businessGoToBrokenBrick;
+                //        targetBrick.GetComponent<CubeBrickScript>().SetBrickInHands(true);
+                //    }
+                //    else
+                //    {
+                //        Business = businessWalking;
+                //    }
+                //}
                 break;
             case businessGoToBrokenBrick:
                 if (targetBrick != null)
