@@ -13,9 +13,11 @@ public class BuilderScript : MonoBehaviour
     private const int businessStay = 0;
     private const int businessGoToBrokenBrick = 1;
     private const int businessBringBrokenBrick = 2;
-    private const int businessWalking = 3;
+    private const int businessGoToBuilderSite = 3;
+    private const int businessWalking = 4;
     private int Business { get; set; }
-    private GameObject targetBrick, targetBuilderHouse;
+    private GameObject[] targetBuilderHouses, placeBrickHeres;
+    private GameObject targetBrick, placeBrickHere, targetBuilderHouse;
     private NavMeshAgent agent;
     
 
@@ -32,7 +34,11 @@ public class BuilderScript : MonoBehaviour
             builderSite = GameObject.FindGameObjectWithTag("BuildingSite");
         }
         agent = GetComponent<NavMeshAgent>();
-        targetBuilderHouse = GameObject.FindGameObjectWithTag("BuilderBuildings");
+        agent.speed = 2.5f;
+        targetBuilderHouses = GameObject.FindGameObjectsWithTag("BuilderBuildings");
+        placeBrickHeres = GameObject.FindGameObjectsWithTag("BrickHere");
+        placeBrickHere = FindMinDist(placeBrickHeres);
+        targetBuilderHouse = FindMinDist(targetBuilderHouses);
     }
 
     // Update is called once per frame
@@ -52,19 +58,16 @@ public class BuilderScript : MonoBehaviour
 
         if (ShitButtonBehaviour.isPressed) Business = businessWalking;
 
-        // agent.SetDestination(builderSite.transform.position);
-
         switch (Business)
         {
             case businessStay:
-                // если не все блоки на сцене - идти до дома, иначе стоим
                 if (gameController != null)
                 {
                     List<CubeBrickScript> towerList = gameController.GetBrickList();
                     List<GameObject> templateList = gameController.GetFlagList();
                     for (int i = 0; i < towerList.Count; i++)
                     {
-                        if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace()) // есть ли отсутствующие блоки на сцене
+                        if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace()) // есть ли отсутствующие блоки на башне
                         {
                             Business = businessGoToBrokenBrick;
                         } 
@@ -73,6 +76,7 @@ public class BuilderScript : MonoBehaviour
                             agent.SetDestination(transform.position); // стоим
                         }
                     }
+                    
                 }
                 
                 //if (targetBrick != null)
@@ -113,25 +117,35 @@ public class BuilderScript : MonoBehaviour
                 //}
                 break;
             case businessGoToBrokenBrick:
-                if (targetBrick != null)
-                {
-                    transform.position = Vector3.MoveTowards(transform.position, targetBrick.transform.position, 3 * Time.deltaTime);
-                }
+                agent.SetDestination(targetBuilderHouse.transform.position);
                 break;
             case businessBringBrokenBrick:
-                if (targetBrick != null)
+                // определяем нужный блок
+                bool hasBrick = false;
+                List<CubeBrickScript> towerList1 = gameController.GetBrickList();
+                for (int i = 0; i < towerList1.Count; i++)
                 {
-                    if ((transform.position - targetBrick.transform.position).magnitude < 4)
+                    if (!towerList1[i].IsBrickInPlace() && !towerList1[i].isActiveAndEnabled)
                     {
-                        transform.position = Vector3.MoveTowards(transform.position, builderSite.transform.position, 2 * Time.deltaTime);
-                        targetBrick.transform.position = Vector3.MoveTowards(targetBrick.transform.position, transform.position, 2 * Time.deltaTime);
-                    }
-                    else
-                    {
-                        Debug.Log("Faraway");
-                        Business = businessStay;
+                        SetTargetBrick(towerList1[i].gameObject);
+                        hasBrick = true;
                     }
                 }
+                if (GetTargetBrick() != null && hasBrick)
+                {
+                    GetTargetBrick().SetActive(true);
+                    GetTargetBrick().transform.position = placeBrickHere.transform.position;
+                    Business = businessGoToBuilderSite;
+                }
+                else
+                {
+                    Business = businessStay;
+                }
+                break;
+            case businessGoToBuilderSite:
+                agent.SetDestination(builderSite.transform.position);
+                GetTargetBrick().transform.position = Vector3.MoveTowards(GetTargetBrick().transform.position, transform.position, 3 * Time.deltaTime);
+                
                 break;
             case businessWalking:
                 if ((transform.position - builderSite.transform.position).magnitude < 20)
@@ -151,62 +165,75 @@ public class BuilderScript : MonoBehaviour
     {
         if (other.gameObject.tag == "BuildingSite") 
         {
+            if (Business == businessGoToBuilderSite)
+            {
+                Debug.Log("Try to place");
+                //Find broken tower wall
+                GameObject lowestBrokenFlag = null;
+                float y = 100;
+                List<GameObject> templateList = gameController.GetFlagList();
+                for (int i = 0; i < templateList.Count; i++)
+                {
+                    if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace())
+                    {
+                        if (templateList[i].gameObject.transform.position.y < y)
+                        {
+                            lowestBrokenFlag = templateList[i];
+                            y = templateList[i].gameObject.transform.position.y;
+                        }
+                    }
+                }
+                //if tower has broken wall
+                if (lowestBrokenFlag != null)
+                {
+                    //Place brick to flag;
+                    if (targetBrick != null)
+                    {
+                        targetBrick.GetComponent<CubeBrickScript>().SetBrickInHands(false);
+                        targetBrick.GetComponent<Rigidbody>().AddForce(Vector3.zero);
+                        targetBrick.GetComponent<Rigidbody>().velocity = Vector3.zero;
+                        targetBrick.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+                        targetBrick.transform.rotation = Quaternion.identity;
+                        targetBrick.transform.position = lowestBrokenFlag.transform.position;
+                    }
+                }
+                Business = businessStay;
+            }
+        }
+    }
+
+    private GameObject FindMinDist(GameObject[] array)
+    {
+        GameObject gObj = null;
+        float dist = float.MaxValue;
+        foreach (var item in array)
+        {
+            if (dist > (transform.position - item.transform.position).magnitude)
+            {
+                dist = (transform.position - item.transform.position).magnitude;
+                gObj = item;
+            }
+        }
+        return gObj;
+    }
+    private GameObject GetTargetBrick()
+    {
+        return targetBrick;
+    }
+
+    private void SetTargetBrick(GameObject game)
+    {
+        targetBrick = game;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "BuilderBuildings")
+        {
             if (Business == businessGoToBrokenBrick)
             {
-                if (targetBrick == null)
-                {
-                    Business = businessStay;
-                }
-                else
-                {
-                    if ((transform.position - targetBrick.transform.position).magnitude > 4)
-                    {
-                        Business = businessWalking;
-                        targetBrick.GetComponent<CubeBrickScript>().SetBrickInHands(false);
-                        targetBrick = null;
-                    }
-                    else
-                    {
-                        Business = businessBringBrokenBrick;
-                    }
-                }
-            }
-            else
-            {
-                if (Business == businessBringBrokenBrick)
-                {
-                    Debug.Log("Try to place");
-                    //Find broken tower wall
-                    GameObject lowestBrokenFlag = null;
-                    float y = 100;
-                    List<GameObject> templateList = gameController.GetFlagList();
-                    for (int i = 0; i < templateList.Count; i++)
-                    {
-                        if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace())
-                        {
-                            if (templateList[i].gameObject.transform.position.y < y)
-                            {
-                                lowestBrokenFlag = templateList[i];
-                                y = templateList[i].gameObject.transform.position.y;
-                            }
-                        }
-                    }
-                    //if tower has broken wall
-                    if (lowestBrokenFlag != null)
-                    {
-                        //Place brick to flag;
-                        if (targetBrick != null)
-                        {
-                            targetBrick.GetComponent<CubeBrickScript>().SetBrickInHands(false);
-                            targetBrick.GetComponent<Rigidbody>().AddForce(Vector3.zero);
-                            targetBrick.GetComponent<Rigidbody>().velocity = Vector3.zero;
-                            targetBrick.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-                            targetBrick.transform.rotation = Quaternion.identity;
-                            targetBrick.transform.position = lowestBrokenFlag.transform.position;
-                        }
-                    }
-                    Business = businessStay;
-                }
+                Business = businessBringBrokenBrick;
+                Debug.Log("Entered to house");
             }
         }
     }
@@ -215,15 +242,7 @@ public class BuilderScript : MonoBehaviour
     {
         Debug.Log("BuilderTrigger: " + other.gameObject.name);
         TriggerBuilderSite(other);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        //Debug.Log("BuilderTrigger: " + collision.gameObject.name);
-        if ((collision.gameObject.tag == "TowerTag") && (Business == businessGoToBrokenBrick))
-        {
-            Business = businessBringBrokenBrick;
-        }
+        
     }
 
     

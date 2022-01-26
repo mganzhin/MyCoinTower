@@ -274,15 +274,22 @@ public class GameController : MonoBehaviour
             }
         }
         //Place other bricks
-        float angle;
-        for (int i = towerList.Count; i < 28; i++)
+        //float angle;
+        //for (int i = towerList.Count; i < 28; i++)
+        //{
+        //    angle = Random.Range(0f, 14f);
+        //    GameObject towerBrick = Instantiate(TowerPrefab,
+        //                    new Vector3(17 * Mathf.Cos(angle), Random.Range(3, 15), 17 * Mathf.Sin(angle)),
+        //                    Quaternion.Euler(0, 0, 0));
+        //    towerList.Add(towerBrick.GetComponent<CubeBrickScript>());
+        //}
+        for (int i = towerList.Count; i < 34; i++)
         {
-            angle = Random.Range(0f, 14f);
-            GameObject towerBrick = Instantiate(TowerPrefab,
-                            new Vector3(17 * Mathf.Cos(angle), Random.Range(3, 15), 17 * Mathf.Sin(angle)),
-                            Quaternion.Euler(0, 0, 0));
+            GameObject towerBrick = Instantiate(TowerPrefab);
             towerList.Add(towerBrick.GetComponent<CubeBrickScript>());
+            towerBrick.SetActive(false);
         }
+
         for (int i = 0; i< towerList.Count; i++)
         {
             towerList[i].SetBrickInHands(false);
