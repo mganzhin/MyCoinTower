@@ -29,6 +29,10 @@ public class ShitButtonBehaviour : MonoBehaviour
         {
             button.SetActive(true);
         }
+        else if (GameController.countBrokenBricks <= 20 && button.activeSelf)
+        {
+            button.SetActive(false);
+        }
     }
 
     public void LetItShit()
@@ -37,6 +41,7 @@ public class ShitButtonBehaviour : MonoBehaviour
         GameController.countBrokenBricks = 0;
         button.SetActive(false);
     }
+
 
 
 }
