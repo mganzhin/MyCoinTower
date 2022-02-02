@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CubeBrickScript : MonoBehaviour
 {
+    private bool debug = true;
     private const float maxHitPoints = 100f;
     private const int fireType = 0; //red
     private const int ecoType = 1; //green
@@ -11,7 +12,7 @@ public class CubeBrickScript : MonoBehaviour
     private const int maxTypes = 3; //count of types
     private static int[] brickTypes = { fireType, ecoType, waterType };
     [SerializeField] private Material[] materialDamaged;
-    [SerializeField] private Material materialBroken;
+    [SerializeField] private Material[] materialBroken;
     [SerializeField] private Material[] materialInPlace;
     private Renderer brickRenderer;
     private bool isBrickInPlace;
@@ -53,7 +54,7 @@ public class CubeBrickScript : MonoBehaviour
             {
                 if (hitPoints < 30)
                 {
-                    return materialBroken;
+                    return materialBroken[brickType];
                 }
                 else
                 {
@@ -137,6 +138,11 @@ public class CubeBrickScript : MonoBehaviour
         if (collision.gameObject.tag == "BallTag")
         {
             SetDeltaHitPoints(-formulaKeeper.CalcDamage(collision.gameObject.GetComponent<BallScript>().GetBulletType(), brickType));
+            if (collision.gameObject.GetComponent<BallScript>().GetBulletType() == brickType)
+            {
+                Deblog.Log(debug, "Bang!");
+                collision.gameObject.GetComponent<Rigidbody>().AddExplosionForce(1000f, collision.gameObject.transform.position, 100f);
+            }
         }
     }
 

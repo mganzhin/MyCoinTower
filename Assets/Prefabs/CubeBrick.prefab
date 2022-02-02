@@ -129,7 +129,10 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 28355beacab4776429090058a5056ed7, type: 2}
   - {fileID: 2100000, guid: dd8068c39446e6f44895b86800f1a39b, type: 2}
   - {fileID: 2100000, guid: 33d71a204a3a5b44a8b13d671def8e39, type: 2}
-  materialBroken: {fileID: 2100000, guid: 49213bca6273c6644ba953f7498ab133, type: 2}
+  materialBroken:
+  - {fileID: 2100000, guid: 7455a7f0dd97d244191705cbe3d59ed6, type: 2}
+  - {fileID: 2100000, guid: 64b1da2a48a66234e9e6eab21652fec7, type: 2}
+  - {fileID: 2100000, guid: 2832e28bcbdee6744a48827800c91b31, type: 2}
   materialInPlace:
   - {fileID: 2100000, guid: 11abeaed9f195f54ba079648143c3283, type: 2}
   - {fileID: 2100000, guid: c825edc38c2a1de41908f51185ac123e, type: 2}

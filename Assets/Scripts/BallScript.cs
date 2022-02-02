@@ -78,4 +78,9 @@ public class BallScript : MonoBehaviour
         }
     }
 
+    public Rigidbody GetRigidbody()
+    {
+        return rigidBody;
+    }
+
 }

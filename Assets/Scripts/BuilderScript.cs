@@ -6,7 +6,9 @@ using UnityEngine.AI;
 public class BuilderScript : MonoBehaviour
 {
     [SerializeField] private Material targetMaterial;
-    
+
+    private bool debug = false;
+
     private static GameObject builderSite;
     private static GameController gameController;
 
@@ -69,12 +71,12 @@ public class BuilderScript : MonoBehaviour
                     {
                         if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace()) // есть ли отсутствующие блоки на башне
                         {
-                            Debug.Log($"{gameObject.name}: Find broken wall");
+                            Deblog.Log(debug, $"{gameObject.name}: Find broken wall");
                             Business = businessGoToBrokenBrick;
                         } 
                         else
                         {
-                            Debug.Log($"{gameObject.name}: Standing");
+                            Deblog.Log(debug, $"{gameObject.name}: Standing");
                             agent.SetDestination(transform.position); // стоим
                         }
                     }
@@ -82,7 +84,7 @@ public class BuilderScript : MonoBehaviour
                 }
                 break;
             case businessGoToBrokenBrick:
-                Debug.Log($"{gameObject.name}: Go to Builders house");
+                Deblog.Log(debug, $"{gameObject.name}: Go to Builders house");
                 agent.SetDestination(targetBuilderHouse.transform.position);
                 break;
             case businessBringBrokenBrick:
@@ -102,7 +104,7 @@ public class BuilderScript : MonoBehaviour
                     GetTargetBrick().transform.position = placeBrickHere.transform.position;
                     GetTargetBrick().GetComponent<BoxCollider>().enabled = false;
                     GetTargetBrick().GetComponent<Rigidbody>().isKinematic = true;
-                    Debug.Log($"{gameObject.name}: Get the block");
+                    Deblog.Log(debug, $"{gameObject.name}: Get the block");
                     Business = businessGoToBuilderSite;
                 }
                 else
@@ -111,13 +113,13 @@ public class BuilderScript : MonoBehaviour
                 }
                 break;
             case businessGoToBuilderSite:
-                Debug.Log($"{gameObject.name}: Go to BuilderSite");
+                Deblog.Log(debug, $"{gameObject.name}: Go to BuilderSite");
                 agent.SetDestination(builderSite.transform.position);
                 ControlDist(GetTargetBrick(), gameObject, 2);
                 
                 break;
             case businessWalking:
-                Debug.Log($"{gameObject.name}: Walking");
+                Deblog.Log(debug, $"{gameObject.name}: Walking");
                 agent.SetDestination(targetBuilderHouse.transform.position);
                 break;
         }
@@ -130,7 +132,7 @@ public class BuilderScript : MonoBehaviour
         {
             if (Business == businessGoToBuilderSite)
             {
-                Debug.Log("Try to place");
+                Deblog.Log(debug, "Try to place");
                 GetTargetBrick().GetComponent<BoxCollider>().enabled = true;
                 GetTargetBrick().GetComponent<Rigidbody>().isKinematic = false;
                 //Find broken tower wall
@@ -206,14 +208,14 @@ public class BuilderScript : MonoBehaviour
             if (Business == businessGoToBrokenBrick)
             {
                 Business = businessBringBrokenBrick;
-                Debug.Log($"{gameObject.name} Entered to house");
+                Deblog.Log(debug, $"{gameObject.name} Entered to house");
             }
         }
     }
 
     private void OnTriggerStay(Collider other)
     {
-        Debug.Log("BuilderTrigger: " + other.gameObject.name);
+        Deblog.Log(debug, "BuilderTrigger: " + other.gameObject.name);
         TriggerBuilderSite(other);
     }
 
