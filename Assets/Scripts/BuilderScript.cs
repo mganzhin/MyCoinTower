@@ -56,7 +56,7 @@ public class BuilderScript : MonoBehaviour
             Business = businessStay;
         }
 
-        if (ShitButtonBehaviour.isPressed) Business = businessWalking;
+        if (ShitButtonBehaviour.isPressed) Business = businessStay;
 
         switch (Business)
         {
@@ -69,58 +69,23 @@ public class BuilderScript : MonoBehaviour
                     {
                         if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace()) // есть ли отсутствующие блоки на башне
                         {
+                            Debug.Log($"{gameObject.name}: Find broken wall");
                             Business = businessGoToBrokenBrick;
                         } 
                         else
                         {
+                            Debug.Log($"{gameObject.name}: Standing");
                             agent.SetDestination(transform.position); // стоим
                         }
                     }
                     
                 }
-                
-                //if (targetBrick != null)
-                //{
-                //    targetBrick.GetComponent<CubeBrickScript>().SetBrickInHands(false);
-                //    targetBrick = null;
-                //}
-                //float distance = 100;
-                //if (gameController != null)
-                //{
-                //    List<CubeBrickScript> towerList = gameController.GetBrickList();
-                //    for (int i = 0; i < towerList.Count; i++)
-                //    {
-                //        //CubeBrickScript cubeScript = towerList[i].GetComponent<CubeBrickScript>();
-                //        if ((!towerList[i].IsBrickInPlace()) && (!towerList[i].IsBrickInHands()))
-                //        {
-                //            /*
-                //             Было : Поиск куба с минимальным расстоянием от строителя
-                //             Должно стать: Ходьба до здания и забор куба 
-                //             */
-                //            if ((towerList[i].gameObject.transform.position - transform.position).magnitude < distance)
-                //            {
-                //                targetBrick = towerList[i].gameObject;
-                //                //targetBrick.GetComponent<Renderer>().material = targetMaterial;
-                //                distance = (towerList[i].gameObject.transform.position - transform.position).magnitude;
-                //            }
-                //        }
-                //    }
-                //    if (targetBrick != null)
-                //    {
-                //        Business = businessGoToBrokenBrick;
-                //        targetBrick.GetComponent<CubeBrickScript>().SetBrickInHands(true);
-                //    }
-                //    else
-                //    {
-                //        Business = businessWalking;
-                //    }
-                //}
                 break;
             case businessGoToBrokenBrick:
+                Debug.Log($"{gameObject.name}: Go to Builders house");
                 agent.SetDestination(targetBuilderHouse.transform.position);
                 break;
             case businessBringBrokenBrick:
-                // определяем нужный блок
                 bool hasBrick = false;
                 List<CubeBrickScript> towerList1 = gameController.GetBrickList();
                 for (int i = 0; i < towerList1.Count; i++)
@@ -135,6 +100,9 @@ public class BuilderScript : MonoBehaviour
                 {
                     GetTargetBrick().SetActive(true);
                     GetTargetBrick().transform.position = placeBrickHere.transform.position;
+                    GetTargetBrick().GetComponent<BoxCollider>().enabled = false;
+                    GetTargetBrick().GetComponent<Rigidbody>().isKinematic = true;
+                    Debug.Log($"{gameObject.name}: Get the block");
                     Business = businessGoToBuilderSite;
                 }
                 else
@@ -143,19 +111,14 @@ public class BuilderScript : MonoBehaviour
                 }
                 break;
             case businessGoToBuilderSite:
+                Debug.Log($"{gameObject.name}: Go to BuilderSite");
                 agent.SetDestination(builderSite.transform.position);
-                GetTargetBrick().transform.position = Vector3.MoveTowards(GetTargetBrick().transform.position, transform.position, 3 * Time.deltaTime);
+                ControlDist(GetTargetBrick(), gameObject, 2);
                 
                 break;
             case businessWalking:
-                if ((transform.position - builderSite.transform.position).magnitude < 20)
-                {
-                    transform.position = Vector3.MoveTowards(transform.position, transform.position * 2, 3 * Time.deltaTime);
-                }
-                else
-                {
-                    Business = businessStay;
-                }
+                Debug.Log($"{gameObject.name}: Walking");
+                agent.SetDestination(targetBuilderHouse.transform.position);
                 break;
         }
 
@@ -168,6 +131,8 @@ public class BuilderScript : MonoBehaviour
             if (Business == businessGoToBuilderSite)
             {
                 Debug.Log("Try to place");
+                GetTargetBrick().GetComponent<BoxCollider>().enabled = true;
+                GetTargetBrick().GetComponent<Rigidbody>().isKinematic = false;
                 //Find broken tower wall
                 GameObject lowestBrokenFlag = null;
                 float y = 100;
@@ -226,6 +191,14 @@ public class BuilderScript : MonoBehaviour
         targetBrick = game;
     }
 
+    private void ControlDist(GameObject gObj1, GameObject gObj2, float dist)
+    {
+        if ((gObj1.transform.position - gObj2.transform.position).magnitude > dist)
+        {
+            gObj1.transform.position = Vector3.MoveTowards(gObj1.transform.position, gObj2.transform.position, agent.speed * Time.deltaTime);
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "BuilderBuildings")
@@ -233,7 +206,7 @@ public class BuilderScript : MonoBehaviour
             if (Business == businessGoToBrokenBrick)
             {
                 Business = businessBringBrokenBrick;
-                Debug.Log("Entered to house");
+                Debug.Log($"{gameObject.name} Entered to house");
             }
         }
     }
@@ -242,7 +215,6 @@ public class BuilderScript : MonoBehaviour
     {
         Debug.Log("BuilderTrigger: " + other.gameObject.name);
         TriggerBuilderSite(other);
-        
     }
 
     
