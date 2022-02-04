@@ -144,10 +144,13 @@ public class GameController : MonoBehaviour
         float angle;
         for (int i = 0; i < 3; i++)
         {
+            GameObject gObj = null;
             angle = Random.Range(0f, 14f);
-            builderList.Add(Instantiate(BuilderPrefab,
+            gObj = Instantiate(BuilderPrefab,
                 new Vector3(21 * Mathf.Cos(angle), 3f, 21 * Mathf.Sin(angle)),
-                Quaternion.identity));
+                Quaternion.identity);
+            gObj.name = $"Builder {i + 1}";
+            builderList.Add(gObj);
         }
     }
 
