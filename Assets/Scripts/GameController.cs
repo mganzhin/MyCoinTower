@@ -158,7 +158,7 @@ public class GameController : MonoBehaviour
     {
         ClearObjectList(ballList);
         bulletReadyList.Clear();
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < BulletWing.Length; i++)
         {
             Vector3 bulletPlace = BulletWing[i].transform.position;
             ballList.Add(Instantiate(BallPrefab,
