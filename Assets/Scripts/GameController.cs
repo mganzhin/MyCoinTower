@@ -36,8 +36,8 @@ public class GameController : MonoBehaviour
 
     [SerializeField] private GameObject Copter;
     [SerializeField] private GameObject[] BulletWing;
+    [SerializeField] private GameObject[] SpawnPoints;
 
-    // Start is called before the first frame update
     void Start()
     {
         countBrokenBricks = 0;
@@ -147,7 +147,7 @@ public class GameController : MonoBehaviour
             GameObject gObj = null;
             angle = Random.Range(0f, 14f);
             gObj = Instantiate(BuilderPrefab,
-                new Vector3(21 * Mathf.Cos(angle), 3f, 21 * Mathf.Sin(angle)),
+                SpawnPoints[i].transform.position,
                 Quaternion.identity);
             gObj.name = $"Builder {i + 1}";
             builderList.Add(gObj);

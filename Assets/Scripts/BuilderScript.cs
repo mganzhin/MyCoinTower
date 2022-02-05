@@ -78,7 +78,6 @@ public class BuilderScript : MonoBehaviour
                             agent.SetDestination(transform.position);
                         }
                     }
-                    
                 }
                 break;
             case businessGoToBrokenBrick:
