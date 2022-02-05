@@ -6,8 +6,9 @@ using UnityEngine.AI;
 public class BuilderScript : MonoBehaviour
 {
     [SerializeField] private Material targetMaterial;
+    [SerializeField] private float builderSpeed;
 
-    private bool debug = false;
+    private bool debug = true;
 
     private static GameObject builderSite;
     private static GameController gameController;
@@ -21,11 +22,13 @@ public class BuilderScript : MonoBehaviour
     private GameObject[] targetBuilderHouses, placeBrickHeres;
     private GameObject targetBrick, placeBrickHere, targetBuilderHouse;
     private NavMeshAgent agent;
+    private Rigidbody rb;
     
 
     // Start is called before the first frame update
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
         Business = businessStay;
         if (gameController == null)
         {
@@ -36,7 +39,7 @@ public class BuilderScript : MonoBehaviour
             builderSite = GameObject.FindGameObjectWithTag("BuildingSite");
         }
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = 2.5f;
+        agent.speed = builderSpeed;
         targetBuilderHouses = GameObject.FindGameObjectsWithTag("BuilderBuildings");
         placeBrickHeres = GameObject.FindGameObjectsWithTag("BrickHere");
         placeBrickHere = FindMinDist(placeBrickHeres);
@@ -46,11 +49,6 @@ public class BuilderScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (transform.rotation != Quaternion.identity)
-        {
-            transform.rotation = Quaternion.identity;
-        }
-
         if (transform.position.y < -5)
         {
             float angle = Random.Range(0f, 14f);
@@ -69,7 +67,7 @@ public class BuilderScript : MonoBehaviour
                     List<GameObject> templateList = gameController.GetFlagList();
                     for (int i = 0; i < towerList.Count; i++)
                     {
-                        if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace()) // есть ли отсутствующие блоки на башне
+                        if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace())
                         {
                             Deblog.Log(debug, $"{gameObject.name}: Find broken wall");
                             Business = businessGoToBrokenBrick;
@@ -77,7 +75,7 @@ public class BuilderScript : MonoBehaviour
                         else
                         {
                             Deblog.Log(debug, $"{gameObject.name}: Standing");
-                            agent.SetDestination(transform.position); // стоим
+                            agent.SetDestination(transform.position);
                         }
                     }
                     
@@ -113,10 +111,17 @@ public class BuilderScript : MonoBehaviour
                 }
                 break;
             case businessGoToBuilderSite:
-                Deblog.Log(debug, $"{gameObject.name}: Go to BuilderSite");
-                agent.SetDestination(builderSite.transform.position);
-                ControlDist(GetTargetBrick(), gameObject, 2);
-                
+                if (GetTargetBrick() != null)
+                {
+                    Deblog.Log(debug, $"{gameObject.name}: Go to BuilderSite");
+                    agent.SetDestination(builderSite.transform.position);
+                    ControlDist(GetTargetBrick(), gameObject, 2);
+                }
+                else
+                {
+                    Deblog.Log(debug, $"{gameObject.name}: Brick broken, try to find new brick");
+                    Business = businessStay;
+                }
                 break;
             case businessWalking:
                 Deblog.Log(debug, $"{gameObject.name}: Walking");
