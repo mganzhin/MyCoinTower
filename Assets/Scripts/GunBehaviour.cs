@@ -59,15 +59,20 @@ public class GunBehaviour : MonoBehaviour
             rb = gObj.GetComponent<Rigidbody>();
             rb.isKinematic = true;
             gObj.transform.position = gunBarrel.transform.position;
-            StartCoroutine(ToCamera(gObj));
+            yield return StartCoroutine(ToCamera(gObj));
             rootList.Clear();
         }
         yield return null;
     }
-    
+
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+    }
 
 
-    
+
+
 
 
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public enum WeaponType
@@ -15,6 +16,7 @@ public class GameController : MonoBehaviour
 
     private readonly float builderSiteFloor = 2.5f;
     public static int countBrokenBricks;
+    public static bool isGunsShowed;
     private bool isFullBuild = false;
     private int countOfBricks = 34;
     public Text ScoreText;
@@ -42,6 +44,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
         countBrokenBricks = 0;
+        isGunsShowed = false;
         weapon = WeaponType.Single;
         FindObjectOfType<CoinScript>().CoinDownEvent += OnCoinDown;
         FindObjectOfType<GlassScript>().GlassPressedEvent += OnGlassPressed;
@@ -218,6 +221,7 @@ public class GameController : MonoBehaviour
         if (IsAllInBuild() && !isFullBuild)
         {
             isFullBuild = true;
+            isGunsShowed = true;
             MakeTowerGun();
         }
 
@@ -298,7 +302,8 @@ public class GameController : MonoBehaviour
 
     void OnCoinDown(CoinScript coinScript)
     {
-        RestartScene();
+        //RestartScene();
+        SceneManager.LoadSceneAsync(0, LoadSceneMode.Single);
     }
 
     void OnBrickDown(CubeBrickScript cubeBrickScript)

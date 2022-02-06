@@ -8,16 +8,18 @@ public class BuilderScript : MonoBehaviour
     [SerializeField] private Material targetMaterial;
     [SerializeField] private float builderSpeed;
 
-    private bool debug = true;
+    private bool debug = true, delta = false;
+    private int remb = -1;
 
     private static GameObject builderSite;
     private static GameController gameController;
 
-    private const int businessStay = 0;
+    private const int businessFind = 0;
     private const int businessGoToBrokenBrick = 1;
     private const int businessBringBrokenBrick = 2;
     private const int businessGoToBuilderSite = 3;
     private const int businessWalking = 4;
+    private const int businessStay = 5;
     private int Business { get; set; }
     private GameObject[] targetBuilderHouses, placeBrickHeres;
     private GameObject targetBrick, placeBrickHere, targetBuilderHouse;
@@ -29,7 +31,7 @@ public class BuilderScript : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        Business = businessStay;
+        Business = businessFind;
         if (gameController == null)
         {
             gameController = FindObjectOfType<GameController>();
@@ -53,19 +55,28 @@ public class BuilderScript : MonoBehaviour
         {
             float angle = Random.Range(0f, 14f);
             transform.position = new Vector3(21 * Mathf.Cos(angle), 3f, 21 * Mathf.Sin(angle));
+            Business = businessFind;
+        }
+        if (ShitButtonBehaviour.isPressed)
+        {
+            if (!delta)
+            {
+                delta = true;
+                remb = Business;
+                Business = businessStay;
+            }
+        }
+        if (GameController.isGunsShowed)
+        {
             Business = businessStay;
         }
-
-        if (ShitButtonBehaviour.isPressed) Business = businessStay;
-
         switch (Business)
         {
-            case businessStay:
+            case businessFind:
                 if (gameController != null)
                 {
                     List<CubeBrickScript> towerList = gameController.GetBrickList();
                     List<GameObject> templateList = gameController.GetFlagList();
-                    Debug.Log($"{towerList.Count} - tower\n{templateList.Count} - templ");
                     for (int i = 0; i < towerList.Count; i++)
                     {
                         if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace())
@@ -73,11 +84,6 @@ public class BuilderScript : MonoBehaviour
                             Deblog.Log(debug, $"{gameObject.name}: Find broken wall");
                             Business = businessGoToBrokenBrick;
                         } 
-                        else
-                        {
-                            Deblog.Log(debug, $"{gameObject.name}: Standing");
-                            agent.SetDestination(transform.position);
-                        }
                     }
                 }
                 break;
@@ -107,7 +113,7 @@ public class BuilderScript : MonoBehaviour
                 }
                 else
                 {
-                    Business = businessStay;
+                    Business = businessFind;
                 }
                 break;
             case businessGoToBuilderSite:
@@ -120,13 +126,23 @@ public class BuilderScript : MonoBehaviour
                 else
                 {
                     Deblog.Log(debug, $"{gameObject.name}: Brick broken, try to find new brick");
-                    Business = businessStay;
+                    Business = businessFind;
                 }
                 break;
             case businessWalking:
                 Deblog.Log(debug, $"{gameObject.name}: Walking");
                 agent.SetDestination(targetBuilderHouse.transform.position);
                 break;
+            case businessStay:
+                Deblog.Log(debug, $"{gameObject.name}: Standing");
+                agent.SetDestination(transform.position);
+                break;
+        }
+
+        if (!ShitButtonBehaviour.isPressed && delta)
+        {
+            Business = remb;
+            delta = false;
         }
 
     }
@@ -169,7 +185,7 @@ public class BuilderScript : MonoBehaviour
                         targetBrick.transform.position = lowestBrokenFlag.transform.position;
                     }
                 }
-                Business = businessStay;
+                Business = businessFind;
             }
         }
     }
@@ -210,7 +226,7 @@ public class BuilderScript : MonoBehaviour
     {
         if (other.tag == "BuilderBuildings")
         {
-            if (Business == businessGoToBrokenBrick)
+            if (Business == businessGoToBrokenBrick && !GameController.isGunsShowed)
             {
                 Business = businessBringBrokenBrick;
                 Deblog.Log(debug, $"{gameObject.name} Entered to house");

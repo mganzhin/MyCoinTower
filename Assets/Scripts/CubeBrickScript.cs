@@ -141,7 +141,12 @@ public class CubeBrickScript : MonoBehaviour
             if (collision.gameObject.GetComponent<BallScript>().GetBulletType() == brickType)
             {
                 Deblog.Log(debug, "Bang!");
-                collision.gameObject.GetComponent<Rigidbody>().AddExplosionForce(1000f, collision.gameObject.transform.position, 100f);
+                gameObject.GetComponent<Rigidbody>().AddExplosionForce(3000f, collision.gameObject.transform.position, 150f);
+            }
+            else if (collision.gameObject.GetComponent<BallScript>().GetBulletType() != brickType)
+            {
+                Deblog.Log(debug, "Bang, but weaker!");
+                gameObject.GetComponent<Rigidbody>().AddExplosionForce(50f, collision.gameObject.transform.position, 50f);
             }
         }
     }
