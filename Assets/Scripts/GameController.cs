@@ -16,6 +16,7 @@ public class GameController : MonoBehaviour
     private readonly float builderSiteFloor = 2.5f;
     public static int countBrokenBricks;
     private bool isFullBuild = false;
+    private int countOfBricks = 34;
     public Text ScoreText;
     private WeaponType weapon;
 
@@ -273,10 +274,15 @@ public class GameController : MonoBehaviour
                             new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
                             Quaternion.Euler(0, 0, 0)));
                     }
+                    if (templateList.Count >= countOfBricks)
+                    {
+                        break;
+                    }
+                    
                 }
             }
         }
-        for (int i = towerList.Count; i < 34; i++)
+        for (int i = towerList.Count; i < countOfBricks; i++)
         {
             GameObject towerBrick = Instantiate(TowerPrefab);
             towerList.Add(towerBrick.GetComponent<CubeBrickScript>());

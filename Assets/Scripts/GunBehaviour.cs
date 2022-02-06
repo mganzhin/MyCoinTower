@@ -9,25 +9,25 @@ public class GunBehaviour : MonoBehaviour
     [SerializeField] private GameObject gunBarrel;
     private GameObject gObj;
     private Rigidbody rb;
-    private float time = 0;
     private Ray ray;
     private RaycastHit hit;
+    private List<bool> rootList;
+    private float time = 0;
 
     private void Update()
     {
         transform.LookAt(Camera.main.transform.position);
         time += Time.deltaTime;
-        ray = new Ray(transform.position, Camera.main.transform.position - transform.position);
-        Physics.Raycast(ray, out hit);
-        if (time > 3 && hit.collider.tag != "TowerTag")
+        if (time > 1)
         {
             time = 0;
-            gObj = Instantiate(ball);
-            rb = gObj.GetComponent<Rigidbody>();
-            rb.isKinematic = true;
-            gObj.transform.position = gunBarrel.transform.position;
-            StartCoroutine(ToCamera(gObj));
+            StartCoroutine(CheckRootShooting());
         }
+    }
+
+    private void OnEnable()
+    {
+        rootList = new List<bool>();
     }
 
     private IEnumerator ToCamera(GameObject gObj)
@@ -39,6 +39,33 @@ public class GunBehaviour : MonoBehaviour
         }
         Destroy(gObj);
     }
+
+    private IEnumerator CheckRootShooting()
+    {
+        ray = new Ray(transform.position, Camera.main.transform.position - transform.position);
+        Physics.Raycast(ray, out hit);
+        if (hit.collider.tag != "TowerTag")
+        {
+            rootList.Add(true);
+        }
+        else if (hit.collider.tag == "TowerTag")
+        {
+            rootList.Clear();
+        }
+        if (rootList.Count == 3)
+        {
+            gObj = Instantiate(ball);
+            gObj.transform.localScale = Vector3.one / 2f;
+            rb = gObj.GetComponent<Rigidbody>();
+            rb.isKinematic = true;
+            gObj.transform.position = gunBarrel.transform.position;
+            StartCoroutine(ToCamera(gObj));
+            rootList.Clear();
+        }
+        yield return null;
+    }
+    
+
 
     
 

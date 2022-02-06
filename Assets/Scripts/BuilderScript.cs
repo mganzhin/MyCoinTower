@@ -65,6 +65,7 @@ public class BuilderScript : MonoBehaviour
                 {
                     List<CubeBrickScript> towerList = gameController.GetBrickList();
                     List<GameObject> templateList = gameController.GetFlagList();
+                    Debug.Log($"{towerList.Count} - tower\n{templateList.Count} - templ");
                     for (int i = 0; i < towerList.Count; i++)
                     {
                         if (!templateList[i].GetComponent<TemplateFlagScript>().IsInPlace())
