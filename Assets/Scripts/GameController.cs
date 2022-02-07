@@ -272,17 +272,16 @@ public class GameController : MonoBehaviour
             {
                 for (int z = -1; z <= 1; z++)
                 {
+                    if (templateList.Count >= countOfBricks)
+                    {
+                        break;
+                    }
                     if ((x != 0) || (z != 0))
                     {
                         templateList.Add(Instantiate(TemplateFlag,
                             new Vector3(x * 2f, builderSiteFloor + y * 2f, z * 2f),
                             Quaternion.Euler(0, 0, 0)));
                     }
-                    if (templateList.Count >= countOfBricks)
-                    {
-                        break;
-                    }
-                    
                 }
             }
         }
@@ -335,7 +334,7 @@ public class GameController : MonoBehaviour
         int x = 0;
         for (int i = 0; i < towerList.Count; i++)
         {
-            if (templateList[i].GetComponent<TemplateFlagScript>().IsInPlace())
+            if (towerList[i].isActiveAndEnabled && !towerList[i].IsBrickInHands())
             {
                 x++;
             }
